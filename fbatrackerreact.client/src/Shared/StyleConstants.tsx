@@ -1,0 +1,1 @@
+export const HiddenSm = { display: { xs: 'none', md: 'table-cell' } };

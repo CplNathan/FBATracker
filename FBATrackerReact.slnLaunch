@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Startup",
+    "Projects": [
+      {
+        "Path": "fbatrackerreact.client\\fbatrackerreact.client.esproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "docker-compose.dcproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

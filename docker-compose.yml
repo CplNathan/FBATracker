@@ -1,0 +1,59 @@
+services:
+  fbatrackerreact.server:
+    image: fbatrackerreactserver
+    container_name: fbatracker
+    env_file: "fbatracker.env"
+    ports:
+      - 8080:8080
+    build:
+      context: .
+      dockerfile: FBATrackerReact.Server/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gluetun:
+        condition: service_healthy
+      flaresolverr:
+        condition: service_started
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    env_file: "postgres.env"
+    volumes:
+      - /home/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=fba
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    env_file: "gluetun.env"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    privileged: true
+    healthcheck:
+        test: ["CMD-SHELL", "./gluetun-entrypoint healthcheck"]
+        interval: 5s
+        timeout: 60s
+        start_period: 15s
+        retries: 10
+    restart: unless-stopped
+    environment:
+      - VPN_SERVICE_PROVIDER=expressvpn
+      - HTTPPROXY=On
+      - SERVER_COUNTRIES=UK
+      - PUBLICIP_API=ip2location
